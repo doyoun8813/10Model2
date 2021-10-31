@@ -50,4 +50,13 @@ public class UserDaoImpl implements UserDao{
 	public int getTotalCount(Search search) throws Exception {
 		return sqlSession.selectOne("UserMapper.getTotalCount", search);
 	}
+
+	public User findId(User user) throws Exception {
+		return sqlSession.selectOne("UserMapper.findId", user);
+	}
+	
+	public User findPassword(User user) throws Exception {
+		return sqlSession.selectOne("UserMapper.findPassword", user);
+	}
+
 }

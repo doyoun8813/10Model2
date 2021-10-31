@@ -63,4 +63,12 @@ public class UserServiceImpl implements UserService{
 		}
 		return result;
 	}
+
+	public User findId(User user) throws Exception {
+		return userDao.findId(user);
+	}
+
+	public User findPassword(User user) throws Exception {
+		return userDao.findPassword(user);
+	}
 }

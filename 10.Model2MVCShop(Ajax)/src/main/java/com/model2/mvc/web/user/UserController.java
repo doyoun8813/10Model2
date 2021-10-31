@@ -173,4 +173,30 @@ public class UserController {
 		
 		return "forward:/user/listUser.jsp";
 	}
+	
+	
+	@RequestMapping( value="findId", method=RequestMethod.GET )
+	public String findId( @ModelAttribute("user") User user, Model model ) throws Exception {
+		
+		System.out.println("/user/getUser : GET");
+		//Business Logic
+		User user01 = userService.findId(user);
+		// Model 과 View 연결
+		model.addAttribute("user", user01);
+		
+		return "forward:/user/getUser.jsp";
+	}
+	
+	
+	@RequestMapping( value="findPassword", method=RequestMethod.GET )
+	public String findPassword( @ModelAttribute("user") User user, Model model ) throws Exception {
+		
+		System.out.println("/user/getUser : GET");
+		//Business Logic
+		User user01 = userService.findPassword(user);
+		// Model 과 View 연결
+		model.addAttribute("user", user01);
+		
+		return "forward:/user/getUser.jsp";
+	}
 }

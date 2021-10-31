@@ -24,4 +24,10 @@ public interface UserService {
 	// 회원 ID 중복 확인
 	public boolean checkDuplication(String userId) throws Exception;
 	
+	// 회원 ID 찾기
+	public User findId(User user) throws Exception;
+	
+	// 회원 PASSWORD 찾기
+	public User findPassword(User user) throws Exception;
+	
 }
