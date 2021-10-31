@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ProductMapper">
+
+	<resultMap id="productSelectMap" type="product">
+		<result property="prodNo" column="prod_no" jdbcType="INTEGER" />
+		<result property="prodName" column="prod_name"
+			jdbcType="VARCHAR" />
+		<result property="prodDetail" column="prod_detail"
+			jdbcType="VARCHAR" />
+		<result property="price" column="price" jdbcType="INTEGER" />
+		<result property="manuDate" column="manufacture_day" jdbcType="VARCHAR" />
+		<result property="regDate" column="reg_date" jdbcType="DATE" />
+		<result property="fileName" column="Image_file" jdbcType="VARCHAR" />
+		<result property="proTranCode" column="tran_status_code" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- SQL : INSERT -->
+	<insert id="addProduct"  parameterType="product" >
+		INSERT
+		INTO product( prod_no, prod_name , prod_detail, manufacture_day, price, image_file,  reg_date)
+		VALUES ( seq_product_prod_no.nextval, #{prodName}, #{prodDetail:VARCHAR}, #{manuDate:VARCHAR}, #{price:INTEGER}, #{fileName:VARCHAR}, SYSDATE )
+	</insert>
+	
+	<!-- SQL : SELECT ONE -->
+	 <select id="getProduct" parameterType="int" resultMap="productSelectMap">
+		SELECT
+		prod_no, prod_name, prod_detail, manufacture_day, price, image_file, reg_date
+		FROM product 
+		WHERE prod_no = #{value}
+	 </select>
+	 
+	 <!-- SQL : UPDATE -->
+	 <update id="updateProduct" parameterType="product">
+	 	UPDATE product
+	 	<set>
+	 		prod_name = #{prodName},
+	 		prod_detail = #{prodDetail},
+	 		price = #{price},
+	 		manufacture_day = #{manuDate},
+	 		image_file = #{fileName}
+	 	</set>
+	 	WHERE prod_no = ${prodNo}
+	 </update>
+	 
+	<select id="getProductList" parameterType="search" resultMap="productSelectMap">
+		<!-- <bind name="searchKeywords" value="'%' + searchKeyword + '%'" /> -->
+		SELECT *
+	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq
+				FROM ( SELECT p.prod_no, p.prod_name, p.prod_detail, p.manufacture_day, p.price, p.image_file, p.reg_date, NVL(t.tran_status_code,0)tran_status_code FROM product p, transaction t 
+				<where>
+					<choose>
+						<when test="searchCondition == 0 and searchKeyword != '' ">
+							p.prod_no = t.prod_no(+)
+							AND UPPER(p.prod_no) LIKE UPPER('%'||#{searchKeyword}||'%')
+							<!-- AND UPPER(p.prod_no) LIKE UPPER(#{searchKeywords}) -->
+						</when>
+						<when test="searchCondition == 1 and searchKeyword !='' ">
+							p.prod_no = t.prod_no(+)
+							AND UPPER(p.prod_name) LIKE UPPER('%'||#{searchKeyword}||'%')
+							<!-- AND UPPER(p.prod_name) LIKE UPPER(#{searchKeywords}) -->
+						</when>
+						<when test="searchCondition == 2 and searchKeyword !='' ">
+							p.prod_no = t.prod_no(+)
+							AND p.price LIKE '%'||#{searchKeyword}||'%'
+							<!-- AND p.price LIKE #{searchKeywords} -->
+						</when>
+						<otherwise>
+							p.prod_no = t.prod_no(+)
+						</otherwise>
+					</choose>
+				</where>
+				ORDER BY p.prod_no ) inner_table
+			WHERE ROWNUM &lt;= #{endRowNum} )
+		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum} 
+	</select>
+	 
+	<!-- SQL : SELECT ROW Count -->
+	<select id="getTotalCount" parameterType="search"
+		resultType="int">
+		<!-- <bind name="searchKeywords" value="'%' + searchKeyword + '%'" /> -->
+		SELECT COUNT(*)
+		FROM( SELECT prod_no , prod_name
+		FROM product
+		<if test="searchCondition != null">
+			<where>
+				<if test="searchCondition == 0 and searchKeyword !='' ">
+					<!-- UPPER(prod_no) LIKE UPPER(#{searchKeywords}) -->
+					UPPER(prod_no) LIKE UPPER('%'||#{searchKeyword}||'%')
+				</if>
+				<if test="searchCondition == 1 and searchKeyword !='' ">
+					<!-- UPPER(prod_name) LIKE UPPER(#{searchKeywords}) -->
+					UPPER(prod_name) LIKE UPPER('%'||#{searchKeyword}||'%')
+				</if>
+				<if test="searchCondition == 2 and searchKeyword !='' ">
+					<!-- price LIKE #{searchKeywords} -->
+					price LIKE '%'||#{searchKeyword}||'%'
+				</if>
+			</where>
+		</if>
+		) countTable
+	</select>
+
+</mapper>

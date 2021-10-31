@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PurchaseMapper">
+
+	<resultMap id="purchaseSelectMap" type="purchase">
+		<result property="rowNum" 				column="row_seq" 		jdbcType="NUMERIC"/>
+		<result property="tranNo" 				column="tran_no" 		jdbcType="INTEGER"/>
+		<result property="purchaseProd.prodNo" 	column="prod_no" 		jdbcType="INTEGER"/>
+		<result property="buyer.userId" 		column="buyer_id" 		jdbcType="VARCHAR"/>
+		<result property="paymentOption" 		column="payment_option" jdbcType="CHAR"/>
+		<result property="receiverName" 		column="receiver_name" 	jdbcType="VARCHAR"/>
+		<result property="receiverPhone" 		column="receiver_phone" jdbcType="VARCHAR"/>
+		<result property="divyAddr" 			column="demailaddr" 	jdbcType="VARCHAR"/>
+		<result property="divyRequest" 			column="dlvy_request" 	jdbcType="VARCHAR"/>
+		<result property="tranCode" 			column="tran_status_code" jdbcType="CHAR"/>
+		<result property="orderDate" 			column="order_data" 	jdbcType="DATE"/>
+		<result property="divyDate" 			column="dlvy_date" 		jdbcType="DATE"/>
+	</resultMap>
+
+	<!-- SQL : INSERT -->
+	<insert id="addPurchase"  parameterType="purchase" >
+		INSERT
+		INTO transaction( tran_no, prod_no, buyer_id, payment_option, receiver_name, receiver_phone, demailaddr, dlvy_request, tran_status_code, order_data, dlvy_date)
+		VALUES ( 
+					seq_transaction_tran_no.nextval, 
+					#{purchaseProd.prodNo}, 
+					#{buyer.userId}, 
+					#{paymentOption:CHAR}, 
+					#{receiverName:VARCHAR}, 
+					#{receiverPhone:VARCHAR}, 
+					#{divyAddr:VARCHAR}, 
+					#{divyRequest:VARCHAR}, 
+					1, 
+					SYSDATE, 
+					#{divyDate:DATE})
+	</insert>
+	
+	<!-- SQL : SELECT ONE -->
+	 <select id="getPurchase" parameterType="int" resultMap="purchaseSelectMap">
+		SELECT
+		tran_no, prod_no, buyer_id, payment_option, receiver_name, receiver_phone, demailaddr, dlvy_request, dlvy_date, order_data, tran_status_code 
+		FROM transaction 
+		WHERE tran_no = #{tranNo}
+	 </select>
+	 
+	 <!-- SQL : UPDATE -->
+	 <update id="updatePurchase" parameterType="purchase">
+	 	UPDATE transaction
+	 	<set>
+	 		payment_option = #{paymentOption},
+	 		receiver_name = #{receiverName},
+	 		receiver_phone = #{receiverPhone},
+	 		demailaddr = #{divyAddr},
+	 		dlvy_request = #{divyRequest},
+	 		dlvy_date = #{divyDate}
+	 	</set>
+	 	WHERE tran_no = ${tranNo}
+	 </update>
+	 
+	 <update id="updateTranCode" parameterType="purchase">
+	 	UPDATE transaction
+	 	<set>
+	 		tran_status_code = #{tranCode}
+	 	</set>
+	 	WHERE prod_no = ${purchaseProd.prodNo}
+	 </update>
+	 
+	<select id="getPurchaseList" parameterType="map" resultMap="purchaseSelectMap">
+		Select *
+		FROM ( SELECT inner_table.*, ROWNUM AS row_seq
+				FROM ( SELECT tran_no, prod_no, buyer_id, receiver_name, receiver_phone, tran_status_code FROM transaction WHERE buyer_id = #{buyerId}
+				ORDER BY order_data ASC ) inner_table 
+			WHERE ROWNUM &lt;= #{endRowNum} )
+		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum}
+	</select>
+	
+	<select id="getSaleList" parameterType="search" resultMap="purchaseSelectMap">
+		Select *
+		FROM ( SELECT inner_table.*, ROWNUM AS row_seq
+				FROM ( SELECT tran_no, prod_no, prod_no, buyer_id, receiver_name, receiver_phone, tran_status_code FROM transaction
+				ORDER BY order_data ASC ) inner_table 
+			WHERE ROWNUM &lt;= #{endRowNum} )
+		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum} 
+	</select>
+	 
+	<!-- SQL : SELECT ROW Count -->
+	<select id="getTotalCount" parameterType="search" resultType="int">
+		<!-- <bind name="searchKeywords" value="'%' + searchKeyword + '%'" /> -->
+		SELECT COUNT(*)
+		FROM( SELECT tran_no, prod_no, buyer_id, receiver_name, receiver_phone, tran_status_code
+		FROM transaction
+		<!-- <if test="searchCondition != null">
+			<where>
+				<if test="searchCondition == 0 and searchKeyword !='' ">
+					UPPER(prod_no) LIKE UPPER(#{searchKeywords})
+				</if>
+				<if test="searchCondition == 1 and searchKeyword !='' ">
+					UPPER(prod_name) LIKE UPPER(#{searchKeywords})
+				</if>
+				<if test="searchCondition == 2 and searchKeyword !='' ">
+					price LIKE #{searchKeywords}
+				</if>
+			</where>
+		</if> -->
+		) countTable
+	</select>
+	
+</mapper>
