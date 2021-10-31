@@ -162,19 +162,39 @@
                 <td width="100" height="20">&nbsp;</td>
                 <td height="20" align="center">
    				    <table width="136" height="20" border="0" cellpadding="0" cellspacing="0">
-                          <tr> 
-                            <td width="56">
-                            	<!-- <a href="findId.jsp;">아이디 찾기</a> -->
-                            </td>
-                            <td width="10">&nbsp;</td>
-                            <td width="70">
-                            	<!-- <a href="findPassword.jsp;">비밀번호 찾기</a> -->
-                            </td>
-                          </tr>
-                    </table>
+                       <tr> 
+                         <td width="56">
+                         		<img src="/images/btn_login.gif" width="56" height="20" border="0"/>
+                         </td>
+                         <td width="10">&nbsp;</td>
+                         <td width="70">
+                       			<img src="/images/btn_add.gif" width="70" height="20" border="0">
+                         </td>
+                       </tr>
+                     </table>
                  </td>
                  <td width="20" height="20">&nbsp;</td>
                 </tr>
+                <!-- 
+                <tr> 
+                <td width="30" height="20">&nbsp;</td>
+                <td width="100" height="20">&nbsp;</td>
+                <td height="20" align="center">
+      				<table width="136" height="20" border="0" cellpadding="0" cellspacing="0">
+                          <tr> 
+                            <td width="56">
+                            	<a href="findId.jsp;">아이디 찾기</a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="70">
+                            	<a href="findPassword.jsp;">비밀번호 찾기</a>
+                            </td>
+                          </tr>
+                    </table>
+                  </td>
+                  <td width="20" height="20">&nbsp;</td>
+                </tr>
+                -->
               </table>
             </td>
       	</tr>                            
