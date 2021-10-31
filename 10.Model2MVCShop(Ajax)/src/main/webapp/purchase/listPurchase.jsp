@@ -1,4 +1,5 @@
-<%@ page contentType="text/html; charset=euc-kr" %>
+<%@ page contentType="text/html; charset=EUC-KR" %>
+<%@ page pageEncoding="EUC-KR"%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -13,19 +14,93 @@
 
 <script type="text/javascript">
 	function fncGetList(currentPage) {
-		//document.getElementById("currentPage").value = currentPage;
 		$("#currentPage").val(currentPage);
-		//document.detailForm.submit();
 		$("form").attr("method", "POST").attr("action", "/purchase/listPurchase").submit();
 	}
 	
 	$(function(){
 		$(".ct_list_pop td:nth-child(1)").on("click", function(){
-			self.location = "/purchase/getPurchase?tranNo="+$(this).attr("data-tranno");
+			//self.location = "/purchase/getPurchase?tranNo="+$(this).attr("data-tranno");
+			
+			var tranNo = $(this).attr("data-tranno").trim();
+			$(".ct_list_pop").next(".data_con").children("td").removeAttr("id");
+			$(this).parent(".ct_list_pop").next(".data_con").children("td").attr("id","dataCon"+tranNo);
+			$.ajax({
+				url: "/purchase/json/getPurchase/"+tranNo,
+				method: "GET",
+				dataType: "json",
+				headers: {
+					"Accept" : "application/json",
+					"Content-Type" : "application/json"
+				},
+				success: function(JSONData, status){
+					//구매 방법 조건식 값 구하기
+					var paymendOpt = JSONData.paymentOption=='1  ' ? "현금구매" : "신용구매";
+					
+					// 주문일 날짜 timestemp date형으로 형변환 
+					var orderDate = new Date(JSONData.orderDate);
+					console.log(orderDate);
+					var orderYear = orderDate.getFullYear();
+					var orderMonth = ('0' + (orderDate.getMonth() + 1)).slice(-2);
+					var orderDay = ('0' + orderDate.getDate()).slice(-2);
+					orderDate = orderYear + "-" + orderMonth + "-" + orderDay;
+					
+					// 배송일 date형 시간 안나오게 변환
+					var divyDate = new Date(JSONData.divyDate);
+					console.log(divyDate);
+					var divyYear = divyDate.getFullYear();
+					var divyMonth = ('0' + (divyDate.getMonth() + 1)).slice(-2);
+					var divyDay = ('0' + divyDate.getDate()).slice(-2);
+					divyDate = divyYear + "-" + divyMonth + "-" + divyDay;
+					
+					var displayValue =
+						"<ul class='data_list'>"
+						+"<li><strong>물품번호</strong> : " + JSONData.purchaseProd.prodNo + "</li>" 
+						+"<li><strong>구매자아이디</strong> : " + JSONData.buyer.userId + "</li>" 
+						+"<li><strong>구매방법</strong> : " + paymendOpt + "</li>" 
+						+"<li><strong>구매자이름</strong> : " + JSONData.receiverName + "</li>" 
+						+"<li><strong>구매자연락처</strong> : " + JSONData.receiverPhone + "</li>"
+						+"<li><strong>구매자주소</strong> : " + JSONData.divyAddr + "</li>"
+						+"<li><strong>구매요청사항</strong> : " + JSONData.divyRequest + "</li>"
+						+"<li><strong>배송희망일</strong> : " + divyDate + "</li>"
+						+"<li><strong>주문일</strong> : " + orderDate + "</li>"
+						+"<li><a href='/purchase/updatePurchase?tranNo="+JSONData.tranNo+"'>수정하기</a></li>"
+						+"</ul>";
+					$(".data_list").remove();
+					$("#dataCon"+JSONData.tranNo).html(displayValue);
+				}
+			});
+			
+			
 		});
 		
 		$(".ct_list_pop td:nth-child(3)").on("click", function(){
-			self.location="/user/getUser?userId="+$(this).text().trim(); 
+			//self.location="/user/getUser?userId="+$(this).text().trim(); 
+			var userId = $(this).text().trim();
+			$(".ct_list_pop").next(".data_con").children("td").removeAttr("id");
+			$(this).parent(".ct_list_pop").next(".data_con").children("td").attr("id","dataCon"+userId);
+			$.ajax({
+				url: "/user/json/getUser/"+userId,
+				method: "GET",
+				dataType: "json",
+				headers: {
+					"Accept" : "application/json",
+					"Content-Type" : "application/json"
+				},
+				success: function(JSONData, status){
+					var displayValue =
+						"<ul class='data_list'>"
+						+"<li><strong>아이디</strong> : " + JSONData.userId + "</li>" 
+						+"<li><strong>이 름</strong> : " + JSONData.userName + "</li>" 
+						+"<li><strong>이메일</strong> : " + JSONData.email + "</li>" 
+						+"<li><strong>ROLE</strong> : " + JSONData.role + "</li>" 
+						+"<li><strong>등록일</strong> : " + JSONData.regDateString + "</li>"
+						+"<li><a href='/user/updateUser?userId="+JSONData.userId+"'>수정하기</a></li>"
+						+"</ul>";
+					$(".data_list").remove();
+					$("#dataCon"+JSONData.userId).html(displayValue);
+				}
+			});
 		});
 		
 		//==> UI 수정 추가부분  :  userId LINK Event End User 에게 보일수 있도록 
@@ -126,7 +201,7 @@
 				</c:choose>
 			</td>
 			<td></td>
-			<td align="left" data-trancode="${purchase.tranCode}" data-prodno="${purchase.purchaseProd.prodNo}">
+			<td align="left" data-trancode="${purchase.tranCode}" data-prodno="${purchase.purchaseProd.prodNo}" data-userid="${purchase.buyer.userId}">
 				<!-- jQuery 구현 -->
 				<!--<c:choose>
 					<c:when test="${purchase.tranCode=='2  '}">
@@ -137,7 +212,7 @@
 				</c:choose>-->
 			</td>
 		</tr>
-		<tr>
+		<tr class="data_con">
 			<td colspan="11" bgcolor="D6D7D6" height="1"></td>
 		</tr>
 	</c:forEach>
