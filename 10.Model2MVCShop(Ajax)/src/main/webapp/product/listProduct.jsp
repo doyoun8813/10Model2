@@ -200,8 +200,7 @@ $(function(){
 			</td>
 		</tr>
 		<tr class="data_con">
-			<!-- <td colspan="11" bgcolor="D6D7D6" height="1"></td> -->
-			<td colspan="11" bgcolor="D6D7D6" height="1"></td>
+			<td colspan="9" bgcolor="D6D7D6" height="1"></td>
 		</tr>
 	</c:forEach>
 </table>
